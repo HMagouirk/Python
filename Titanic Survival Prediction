@@ -1,3 +1,5 @@
+/* This project utilizes Python to train a random tree classifier model to predict the probability of survival for Titanic passengers. */
+
 import numpy as np # linear algebra
 import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 
