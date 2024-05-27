@@ -1,0 +1,37 @@
+# This script includes a function named decode, which reads an encoded message from a .txt file and returns its decoded version as a string.
+# The list of 300 randomly numbered words is stored in 'list.txt', with each word on a separate line. The encoded message is stored in 'message_file.txt', containing 24 numbers, each corresponding to a word in 'list.txt'.
+# The decoding uses a pyramid structure, where the key is to use the words corresponding to the numbers at the end of each pyramid line.
+# I used Visual Studio and the command prompt to develop and troubleshoot the script.
+# Relative file paths are used for better portability. You may need to specify full file paths if you intend to run this script in a different setup.
+# This script is intended as a fun tool to learn programming and explore ethical hacking basics, not as a secure method of encryption or decryption.
+# For more information, instructions, or to see the text files used, please refer to the README.
+# Note: The print statement is optional.
+
+def decode(message_file):
+    decoded_message = ""
+    with open(message_file, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if line:  # Skip empty lines
+                number = int(line)
+                with open('list.txt', 'r') as list_file:
+                    for list_line in list_file:
+                        list_number, word = list_line.strip().split(' ', 1)
+                        if int(list_number) == number:
+                            decoded_message += word + " "
+                            break
+
+    # Remove the trailing space
+    decoded_message = decoded_message.strip()
+
+    return decoded_message
+
+def main():
+    message_file = 'message_file.txt'  # Use relative path
+    decoded_message = decode(message_file)
+    
+    # Print the decoded message
+    print(decoded_message)
+
+if __name__ == "__main__":
+    main()
