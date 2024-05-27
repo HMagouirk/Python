@@ -1,0 +1,249 @@
+/* This project utilizes Python to train a random tree classifier model to predict the probability of survival for Titanic passengers. */
+
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+
+
+import os
+for dirname, _, filenames in os.walk('/kaggle/input'):
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+/kaggle/input/titanic-data/train.csv
+/kaggle/input/titanic-data/test.csv
+/kaggle/input/titanic-data/gender_submission.csv
+train_data = pd.read_csv("/kaggle/input/titanic-data/train.csv")
+train_data.head()
+PassengerId	Survived	Pclass	Name	Sex	Age	SibSp	Parch	Ticket	Fare	Cabin	Embarked
+0	1	0	3	Braund, Mr. Owen Harris	male	22.0	1	0	A/5 21171	7.2500	NaN	S
+1	2	1	1	Cumings, Mrs. John Bradley (Florence Briggs Th...	female	38.0	1	0	PC 17599	71.2833	C85	C
+2	3	1	3	Heikkinen, Miss. Laina	female	26.0	0	0	STON/O2. 3101282	7.9250	NaN	S
+3	4	1	1	Futrelle, Mrs. Jacques Heath (Lily May Peel)	female	35.0	1	0	113803	53.1000	C123	S
+4	5	0	3	Allen, Mr. William Henry	male	35.0	0	0	373450	8.0500	NaN	S
+test_data = pd.read_csv("/kaggle/input/titanic-data/test.csv")
+test_data.head()
+PassengerId	Pclass	Name	Sex	Age	SibSp	Parch	Ticket	Fare	Cabin	Embarked
+0	892	3	Kelly, Mr. James	male	34.5	0	0	330911	7.8292	NaN	Q
+1	893	3	Wilkes, Mrs. James (Ellen Needs)	female	47.0	1	0	363272	7.0000	NaN	S
+2	894	2	Myles, Mr. Thomas Francis	male	62.0	0	0	240276	9.6875	NaN	Q
+3	895	3	Wirz, Mr. Albert	male	27.0	0	0	315154	8.6625	NaN	S
+4	896	3	Hirvonen, Mrs. Alexander (Helga E Lindqvist)	female	22.0	1	1	3101298	12.2875	NaN	S
+from sklearn.ensemble import RandomForestClassifier
+
+y = train_data["Survived"]
+
+features = ["Pclass", "Sex", "SibSp", "Parch"]
+X = pd.get_dummies(train_data[features])
+X_test = pd.get_dummies(test_data[features])
+
+model = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=1)
+model.fit(X, y)
+predictions = model.predict(X_test)
+
+output = pd.DataFrame({'PassengerId': test_data.PassengerId, 'Survived': predictions})
+output.to_csv('submission.csv', index=False)
+print("Your submission was successfully saved!")
+Your submission was successfully saved!
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+
+# Define features and target variable
+features = ["Pclass", "Sex", "Age", "SibSp", "Parch"]
+X_train = train_data[features]
+y_train = train_data["Survived"]
+X_test = test_data[features]
+
+# Preprocessing pipeline
+numeric_features = ["Age", "SibSp", "Parch"]
+numeric_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='median'))])
+
+categorical_features = ["Sex", "Pclass"]
+categorical_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+    ('onehot', OneHotEncoder(handle_unknown='ignore'))])
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', numeric_transformer, numeric_features),
+        ('cat', categorical_transformer, categorical_features)])
+
+# Append classifier to preprocessing pipeline
+rf_pipeline = Pipeline(steps=[('preprocessor', preprocessor),
+                              ('classifier', RandomForestClassifier(n_estimators=100, max_depth=5, random_state=1))])
+
+# Train Random Forest Classifier model
+rf_pipeline.fit(X_train, y_train)
+
+# Predict probabilities of survival for passengers in the test data
+survival_probabilities = rf_pipeline.predict_proba(X_test)[:, 1]  # Probability of survival
+
+# Extract passenger names and ages from the test data
+passenger_names = test_data["Name"]
+passenger_ages = test_data["Age"]
+
+# Create DataFrame to store predictions along with names and ages
+predictions_df = pd.DataFrame({
+    "Name": passenger_names,
+    "Age": passenger_ages,
+    "Survival Probability": survival_probabilities
+})
+
+# Filter out passengers who survived
+survivors = predictions_df[predictions_df["Survival Probability"] > 0.5]  # Adjust threshold as needed
+
+# Display the survivors
+print(survivors)
+                                                  Name   Age  \
+6                                 Connolly, Miss. Kate  30.0   
+8            Abrahim, Mrs. Joseph (Sophie Halaut Easu)  18.0   
+12       Snyder, Mrs. John Pillsbury (Nelle Stevenson)  23.0   
+14   Chaffee, Mrs. Herbert Fuller (Carrie Constance...  47.0   
+15       del Carlo, Mrs. Sebastiano (Argenia Genovesi)  24.0   
+..                                                 ...   ...   
+409                          Peacock, Miss. Treasteall   3.0   
+410                             Naughton, Miss. Hannah   NaN   
+411    Minahan, Mrs. William Edward (Lillian E Thorpe)  37.0   
+412                     Henriksson, Miss. Jenny Lovisa  28.0   
+414                       Oliva y Ocana, Dona. Fermina  39.0   
+
+     Survival Probability  
+6                0.580059  
+8                0.591236  
+12               0.974990  
+14               0.969933  
+15               0.881623  
+..                    ...  
+409              0.636171  
+410              0.603150  
+411              0.979908  
+412              0.603150  
+414              0.961314  
+
+[142 rows x 3 columns]
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+
+# Define features and target variable
+features = ["Pclass", "Sex", "Age", "SibSp", "Parch"]
+X_train = train_data[features]
+y_train = train_data["Survived"]
+X_test = test_data[features]
+
+# Preprocessing pipeline
+numeric_features = ["Age", "SibSp", "Parch"]
+numeric_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='median'))])
+
+categorical_features = ["Sex", "Pclass"]
+categorical_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+    ('onehot', OneHotEncoder(handle_unknown='ignore'))])
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', numeric_transformer, numeric_features),
+        ('cat', categorical_transformer, categorical_features)])
+
+# Append classifier to preprocessing pipeline
+rf_pipeline = Pipeline(steps=[('preprocessor', preprocessor),
+                              ('classifier', RandomForestClassifier(n_estimators=100, max_depth=5, random_state=1))])
+
+# Train Random Forest Classifier model
+rf_pipeline.fit(X_train, y_train)
+
+# Predict probabilities of survival for passengers in the test data
+survival_probabilities = rf_pipeline.predict_proba(X_test)[:, 1]  # Probability of survival
+
+# Extract passenger names and ages from the test data
+passenger_names = test_data["Name"]
+passenger_ages = test_data["Age"]
+
+# Create DataFrame to store predictions along with names and ages
+predictions_df = pd.DataFrame({
+    "Name": passenger_names,
+    "Age": passenger_ages,
+    "Survival Probability": survival_probabilities
+})
+
+# Filter out passengers who have a probability rate over 90%
+high_prob_survivors = predictions_df[predictions_df["Survival Probability"] > 0.50]
+
+# Display the high probability survivors
+print(high_prob_survivors)
+                                                  Name   Age  \
+6                                 Connolly, Miss. Kate  30.0   
+8            Abrahim, Mrs. Joseph (Sophie Halaut Easu)  18.0   
+12       Snyder, Mrs. John Pillsbury (Nelle Stevenson)  23.0   
+14   Chaffee, Mrs. Herbert Fuller (Carrie Constance...  47.0   
+15       del Carlo, Mrs. Sebastiano (Argenia Genovesi)  24.0   
+..                                                 ...   ...   
+409                          Peacock, Miss. Treasteall   3.0   
+410                             Naughton, Miss. Hannah   NaN   
+411    Minahan, Mrs. William Edward (Lillian E Thorpe)  37.0   
+412                     Henriksson, Miss. Jenny Lovisa  28.0   
+414                       Oliva y Ocana, Dona. Fermina  39.0   
+
+     Survival Probability  
+6                0.580059  
+8                0.591236  
+12               0.974990  
+14               0.969933  
+15               0.881623  
+..                    ...  
+409              0.636171  
+410              0.603150  
+411              0.979908  
+412              0.603150  
+414              0.961314  
+
+[142 rows x 3 columns]
+# Extract passenger names, ages, and gender from the test data
+passenger_names = test_data["Name"]
+passenger_ages = test_data["Age"]
+passenger_gender = test_data["Sex"]  # Gender
+
+# Create DataFrame to store predictions along with names, ages, and gender
+predictions_df = pd.DataFrame({
+    "Name": passenger_names,
+    "Age": passenger_ages,
+    "Gender": passenger_gender,  # Include gender
+    "Survival Probability": survival_probabilities
+})
+
+# Filter out passengers who have a probability rate over 90%
+high_prob_survivors = predictions_df[predictions_df["Survival Probability"] > 0.50]
+
+# Display the high probability survivors
+print(high_prob_survivors)
+                                                  Name   Age  Gender  \
+6                                 Connolly, Miss. Kate  30.0  female   
+8            Abrahim, Mrs. Joseph (Sophie Halaut Easu)  18.0  female   
+12       Snyder, Mrs. John Pillsbury (Nelle Stevenson)  23.0  female   
+14   Chaffee, Mrs. Herbert Fuller (Carrie Constance...  47.0  female   
+15       del Carlo, Mrs. Sebastiano (Argenia Genovesi)  24.0  female   
+..                                                 ...   ...     ...   
+409                          Peacock, Miss. Treasteall   3.0  female   
+410                             Naughton, Miss. Hannah   NaN  female   
+411    Minahan, Mrs. William Edward (Lillian E Thorpe)  37.0  female   
+412                     Henriksson, Miss. Jenny Lovisa  28.0  female   
+414                       Oliva y Ocana, Dona. Fermina  39.0  female   
+
+     Survival Probability  
+6                0.580059  
+8                0.591236  
+12               0.974990  
+14               0.969933  
+15               0.881623  
+..                    ...  
+409              0.636171  
+410              0.603150  
+411              0.979908  
+412              0.603150  
+414              0.961314  
+
+[142 rows x 4 columns]
+output.to_csv('submission.csv', index=False)
