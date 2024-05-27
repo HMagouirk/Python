@@ -1,0 +1,5 @@
+This file was created in March of 2024 for a Kaggle project. While one would like for the survival rate of Titanic passengers
+to be 100%, we all know that isn't the case. According to history, 32% of the passengers survived the tragedy.
+This project utilizes Python to train a random tree classifier model to predict the probability of survival for 
+individual Titanic passengers. You can consult Kaggle submissions for this category to compare scripts and results.
+Updates since creation have been for a name change and to categorize this project into a folder to aid in organization.
