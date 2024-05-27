@@ -1,3 +1,4 @@
+#save this as 'list.txt', and delete this line
 206 ocean
 45 sun
 298 of
