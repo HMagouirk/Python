@@ -1,0 +1,43 @@
+#This repository contains a Python script that decodes an encoded message based on a list of words.
+
+Inspiration for this project came from a question I encountered on a test. The list that they provided
+  was the same 300 words, yet in a different order. The encoded message had to be created by the user, and
+the key was provided. The goal was to see if my output matched theirs. While successful, I was unhappy with 
+the random words that it produced, so I took this as an unrelated side project. I wanted to not just create 
+a new list, but to use their words and rearrange them into something artistic.
+
+** Spoiler Alert - Poem at end of this message **
+
+## Description
+
+- **decode.py**: This script includes a function named `decode`, which reads an encoded message from `message_file.txt` and returns its decoded version as a string.
+- **list.txt**: A file containing 300 randomly numbered words, each on its own separate line.
+- **message_file.txt**: A file containing 24 numbers, each corresponding to a word in `list.txt`.
+
+## How It Works
+
+1. The script reads the encoded message from `message_file.txt`.
+2. It uses `list.txt` to map the numbers to their corresponding words.
+3. The decoding follows a pyramid structure, using the words corresponding to the numbers at the end of each pyramid line.
+
+## Usage
+
+This is intended as a fun tool to practice programming. 
+
+### Prerequisites
+
+- Python 3.x must be installed on your system.
+
+
+Relative file paths are used for better portability. You may need to specify full file paths if you intend to run this script in a different setup.
+This script is intended as a fun tool to learn programming and explore ethical hacking basics, not as a secure method of encryption or decryption.
+The print statement in the script is optional.
+
+#Troubleshooting
+If you encounter issues with file paths, ensure that all files are located in the same directory as the script. If needed, specify the full file paths in the script.
+
+License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+*** And without further ado, here is what your output should be :
+ocean of past moment like song such rain where time would reach with fire we felt history begin always present our poem electric complete
